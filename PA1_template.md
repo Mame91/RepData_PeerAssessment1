@@ -216,7 +216,7 @@ hist(newAverageDay$total.steps, 10,
                 xlab="Total daily steps",
                         ylab = "Frequency [days]",
                                 xlim=c(0,25000),
-                                        ylim=c(0,20),
+                                        ylim=c(0,25),
                                                 col="lightblue")
 ```
 
