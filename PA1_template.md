@@ -1,9 +1,4 @@
----
-title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: true
----
+# Reproducible Research: Peer Assessment 1
 
 ### Author: Manuel Meretto (May 2015)
 
@@ -29,13 +24,15 @@ The dataset is stored in a comma-separated-value (CSV) file and there are a tota
 
 Reading personal activity data from the activity.csv file: 
 
-```{r}
+
+```r
 personalActivityData <- read.csv ("activity.csv", header = T, sep = ",", stringsAsFactors = F)
 ```
 
 Converting date column from character to Date format:
 
-```{r}
+
+```r
 personalActivityData$date <- as.Date(personalActivityData$date, "%Y-%m-%d")
 ```
 
@@ -43,22 +40,58 @@ Giving an overview of the dataset:
 
  - Structure:
  
-```{r}
+
+```r
  str(personalActivityData)
+```
+
+```
+## 'data.frame':	17568 obs. of  3 variables:
+##  $ steps   : int  NA NA NA NA NA NA NA NA NA NA ...
+##  $ date    : Date, format: "2012-10-01" "2012-10-01" ...
+##  $ interval: int  0 5 10 15 20 25 30 35 40 45 ...
 ```
 
 - First few rows:  
 
-```{r}
+
+```r
 head(personalActivityData)
+```
+
+```
+##   steps       date interval
+## 1    NA 2012-10-01        0
+## 2    NA 2012-10-01        5
+## 3    NA 2012-10-01       10
+## 4    NA 2012-10-01       15
+## 5    NA 2012-10-01       20
+## 6    NA 2012-10-01       25
 ```
 
 ### What is mean total number of steps taken per day?
 
 Using dplyr package to group and summarize data. Total daily steps and mean number of daily steps are stored in a variable called AverageDay:
 
-```{r}
+
+```r
 library(dplyr)
+```
+
+```
+## 
+## Attaching package: 'dplyr'
+## 
+## The following object is masked from 'package:stats':
+## 
+##     filter
+## 
+## The following objects are masked from 'package:base':
+## 
+##     intersect, setdiff, setequal, union
+```
+
+```r
 AverageDay <- personalActivityData %>% 
                 group_by(date) %>% 
                         summarize(total.steps = sum(steps, na.rm = T), 
@@ -67,7 +100,8 @@ AverageDay <- personalActivityData %>%
 
 Plotting histogram of total daily steps:
 
-```{r}
+
+```r
 hist(AverageDay$total.steps, 10,
         main="Frequency of total daily steps",
                 xlab="Total daily steps",
@@ -75,30 +109,38 @@ hist(AverageDay$total.steps, 10,
                                 xlim=c(0,25000),
                                         ylim=c(0,20),
                                                 col="lightblue")
-
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-6-1.png) 
 
 Summarising total daily steps: 
 
-```{r}
+
+```r
 summary(AverageDay$total.steps)
 ```
 
-More precisely, the mean is `r round(mean(AverageDay$total.steps), digits = 2) ` and the median is `r median(AverageDay$total.steps)`.
+```
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##       0    6778   10400    9354   12810   21190
+```
+
+More precisely, the mean is 9354.23 and the median is 10395.
 
 ### What is the average daily activity pattern?
 
 Grouping data by interval and calculating the mean of each interval:
 
-```{r}
+
+```r
 AverageInterval <- personalActivityData %>% group_by(interval) %>%
                         summarize(mean.steps = mean(steps, na.rm = T))
-
 ```
 
 Plotting histogram of total daily steps:
 
-```{r}
+
+```r
 plot(AverageInterval$mean.steps ~ AverageInterval$interval,
         type="l",
                 lwd=3,
@@ -108,25 +150,34 @@ plot(AverageInterval$mean.steps ~ AverageInterval$interval,
                                                 col="lightblue")
 ```
 
-The 5-minute interval which contains the maximum number of steps (`r round(max(AverageInterval$mean.steps), digits = 4)`) is the interval number `r AverageInterval$interval[which.max(AverageInterval$mean.steps)]` in the plot.
+![](PA1_template_files/figure-html/unnamed-chunk-9-1.png) 
+
+The 5-minute interval which contains the maximum number of steps (206.1698) is the interval number 835 in the plot.
 
 ### Imputing missing values
 
 Calculating the total number of missing values in the dataset:
 
-```{r}
+
+```r
 sum(is.na(personalActivityData$steps))
+```
+
+```
+## [1] 2304
 ```
 
 Creating the new dataset that includes NAs: 
 
-```{r}
+
+```r
 newPersonalActivityData <- personalActivityData
 ```
 
 Filling NAs values with average number of steps:
 
-```{r}
+
+```r
 for (i in 1:nrow(newPersonalActivityData)) {
         if (is.na(newPersonalActivityData$steps[i])) {
             index <- newPersonalActivityData$interval[i]
@@ -138,17 +189,28 @@ for (i in 1:nrow(newPersonalActivityData)) {
 head(newPersonalActivityData)
 ```
 
+```
+##       steps       date interval
+## 1 1.7169811 2012-10-01        0
+## 2 0.3396226 2012-10-01        5
+## 3 0.1320755 2012-10-01       10
+## 4 0.1509434 2012-10-01       15
+## 5 0.0754717 2012-10-01       20
+## 6 2.0943396 2012-10-01       25
+```
+
 As done before, using dplyr package to group and summarize data. Total daily steps are stored in a variable called newAverageDay:
 
-```{r}
+
+```r
 newAverageDay <- newPersonalActivityData %>% group_by(date) %>%
                         summarize(total.steps = sum(steps, na.rm = T))
-
 ```
 
 Plotting histogram of total daily steps:
 
-```{r}
+
+```r
 hist(newAverageDay$total.steps, 10,
         main="Frequency of total daily steps",
                 xlab="Total daily steps",
@@ -156,18 +218,25 @@ hist(newAverageDay$total.steps, 10,
                                 xlim=c(0,25000),
                                         ylim=c(0,20),
                                                 col="lightblue")
-
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-14-1.png) 
 
 Filling values with the average number of steps increases the frequencies in the related class.
 
 Summarising total daily steps: 
 
-```{r}
+
+```r
 summary(newAverageDay$total.steps)
 ```
 
-More precisely, the mean is `r mean(newAverageDay$total.steps) ` and the median is `r median(newAverageDay$total.steps)`.
+```
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##      41    9819   10770   10770   12810   21190
+```
+
+More precisely, the mean is 1.0766189\times 10^{4} and the median is 1.0766189\times 10^{4}.
 
 As a consequence of our strategy, the 1st quantile moves closer to mean and median. The distribution is more concentrated around the center.
 
@@ -175,21 +244,24 @@ As a consequence of our strategy, the 1st quantile moves closer to mean and medi
 
 Creating a new factor variable in the dataset with two levels indicating whether a given date is a weekday or weekend day:
 
-```{r}
+
+```r
 newPersonalActivityData$day <- ifelse(weekdays(newPersonalActivityData$date) %in% 
                                         c("Saturday", "Sunday"), "weekend", "weekday")
 ```
 
 Creating two subsets containing weekend and weekday data:
 
-```{r}
+
+```r
 weekendActivity <- filter(newPersonalActivityData, day == "weekend")
 weekdayActivity <- filter(newPersonalActivityData, day == "weekday")
 ```
 
 Grouping by intervals and calculating the average number of steps for each interval, then merging datasets into one ("newInterval"):
 
-```{r}
+
+```r
 weekendActivity <- weekendActivity %>%
                         group_by(interval) %>%
                                 summarize(mean.steps = mean(steps)) 
@@ -207,15 +279,24 @@ newInterval$day <- relevel(newInterval$day, "weekend")
 
 Creating the two panel plot containing the time series data of the 5-minute interval and the average number of steps taken, averaged across all weekday days or weekend days:
 
-```{r}
+
+```r
 library(ggplot2)
+```
+
+```
+## Warning: package 'ggplot2' was built under R version 3.1.3
+```
+
+```r
 g <- ggplot (newInterval, aes(interval, mean.steps))
 g + geom_line(colour="red") + 
         facet_grid (day~.) + 
                 theme(axis.text = element_text(size = 14), 
                         axis.title = element_text(size = 16)) + labs(y = "Number of Steps") + labs(x = "Interval")
-
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-19-1.png) 
 
 We can observe that the number of steps is different between weekdays and weekends.
 In particular, during weekdays activity has one peak in the morning but it is mainly below 100 steps throughout the day. On the other side, weekend data is more balanced (without important peaks).
